@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Contraseñas Seguras</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"></script>
+    <style>
+        body { 
+            font-family: 'Arial', sans-serif;
+            background-color: #1a1a2e; 
+            color: white;
+        }
+        .fade-in { animation: fadeIn 0.5s ease-in-out; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center min-h-screen text-center p-6">
+    <h1 class="text-3xl font-bold text-blue-400 mb-6">🔐 Generador de Contraseñas Seguras</h1>
+    <div class="bg-gray-900 p-6 rounded-lg shadow-lg w-96 fade-in">
+        <label class="block text-lg mb-2">Longitud de la Contraseña:</label>
+        <input type="number" id="length" min="8" max="32" value="16" class="border p-2 w-full text-center rounded">
+        
+        <div class="mt-4 text-left">
+            <label class="block"><input type="checkbox" id="includeNumbers" checked> Incluir Números (0-9)</label>
+            <label class="block"><input type="checkbox" id="includeUppercase" checked> Incluir Mayúsculas (A-Z)</label>
+            <label class="block"><input type="checkbox" id="includeLowercase" checked> Incluir Minúsculas (a-z)</label>
+            <label class="block"><input type="checkbox" id="includeSpecial" checked> Incluir Caracteres Especiales (!@#$%^&*)</label>
+            <label class="block"><input type="checkbox" id="includeWords" checked> Incluir Palabras Aleatorias</label>
+        </div>
+        
+        <button onclick="generatePasswords()" class="bg-blue-500 text-white font-bold p-2 w-full mt-4 rounded hover:bg-blue-700">Generar Contraseñas</button>
+        
+        <div id="password-container" class="mt-4"></div>
+    </div>
+    
+    <script>
+        const words = ["seguro", "fuerte", "clave", "rápido", "protección", "acceso", "privado", "código"];
+        
+        async function generatePasswords() {
+            let length = parseInt(document.getElementById("length").value);
+            let includeNumbers = document.getElementById("includeNumbers").checked;
+            let includeUppercase = document.getElementById("includeUppercase").checked;
+            let includeLowercase = document.getElementById("includeLowercase").checked;
+            let includeSpecial = document.getElementById("includeSpecial").checked;
+            let includeWords = document.getElementById("includeWords").checked;
+            
+            let charset = "";
+            if (includeNumbers) charset += "0123456789";
+            if (includeUppercase) charset += "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            if (includeLowercase) charset += "abcdefghijklmnopqrstuvwxyz";
+            if (includeSpecial) charset += "!@#$%^&*()_+{}[]|:;<>,.?/";
+            
+            let password = "";
+            if (includeWords) {
+                password += words[Math.floor(Math.random() * words.length)];
+            }
+            while (password.length < length) {
+                let randomValues = new Uint8Array(1);
+                window.crypto.getRandomValues(randomValues);
+                let randomIndex = randomValues[0] % charset.length;
+                password += charset[randomIndex];
+            }
+            
+            let passwordContainer = document.getElementById("password-container");
+            passwordContainer.innerHTML = `<p class='bg-gray-800 p-2 rounded-lg text-lg font-mono mt-2'>${password} <button onclick='copyToClipboard("${password}")' class='ml-2 text-green-400'>📋 Copiar</button></p>`;
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert("Contraseña copiada al portapapeles");
+            });
+        }
+    </script>
+</body>
+</html>
+
